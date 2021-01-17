@@ -1,5 +1,4 @@
 ﻿using HomeSeer.PluginSdk;
-using Nito.AsyncEx;
 using System;
 using System.Globalization;
 
@@ -17,31 +16,30 @@ namespace Hspi
         {
             get
             {
-                     return debugLogging;
-             }
+                return debugLogging;
+            }
 
             set
             {
-                     SetValue(DebugLoggingKey, value, ref debugLogging);
-               
+                SetValue(DebugLoggingKey, value, ref debugLogging);
             }
+        }
+
+        protected static string DecryptString(string password)
+        {
+            return password;
+        }
+
+        protected static string EncryptString(string password)
+        {
+            // Chose not to do anything as encryption key anyway has to stored in the code/machine
+            return password;
         }
 
         protected void ClearSection(string id)
         {
             HS.ClearIniSection(id, PlugInData.SettingFileName);
         }
-
-        protected string DecryptString(string p)
-        {
-            return p;
-        }
-
-        protected string EncryptString(string password)
-        {
-            return password;
-        }
-
         protected T GetValue<T>(string key, T defaultValue)
         {
             return GetValue(key, defaultValue, DefaultSection);
@@ -96,6 +94,6 @@ namespace Hspi
         private const string DebugLoggingKey = "DebugLogging";
         private const string DefaultSection = "Settings";
         private readonly IHsController HS;
-        private  bool debugLogging;
+        private bool debugLogging;
     };
 }

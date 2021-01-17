@@ -2,6 +2,7 @@
 using HomeSeer.PluginSdk;
 using NullGuard;
 using System;
+using System.Globalization;
 using System.Threading;
 
 namespace Hspi
@@ -45,6 +46,13 @@ namespace Hspi
         protected override void OnShutdown()
         {
             cancellationTokenSource.Cancel();
+        }
+
+        protected static int ParseRefId(string refIdString)
+        {
+            return int.Parse(refIdString,
+                             System.Globalization.NumberStyles.Any,
+                             CultureInfo.InvariantCulture);
         }
 
         private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();

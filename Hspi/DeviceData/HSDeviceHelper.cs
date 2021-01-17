@@ -8,7 +8,19 @@ namespace Hspi.DeviceData
     [NullGuard(ValidationFlags.Arguments | ValidationFlags.NonPublic)]
     internal static class HSDeviceHelper
     {
-        public static PlugExtraData CreatePlugInExtraDataFroDeviceType(string deviceType)
+        public static string GetName(IHsController HS, int refId)
+        {
+            try
+            {
+                return HS.GetNameByRef(refId);
+            }
+            catch
+            {
+                return $"RefId:{refId}";
+            }
+        }
+
+        public static PlugExtraData CreatePlugInExtraDataForDeviceType(string deviceType)
         {
             var plugExtra = new PlugExtraData();
             plugExtra.AddNamed(PlugInData.DevicePlugInDataTypeKey, deviceType);
@@ -18,12 +30,14 @@ namespace Hspi.DeviceData
         public static string GetDeviceTypeFromPlugInData(IHsController HS, int refId)
         {
             var plugInExtra = HS.GetPropertyByRef(refId, EProperty.PlugExtraData) as PlugExtraData;
-            if (plugInExtra != null)
+            return GetDeviceTypeFromPlugInData(plugInExtra);
+        }
+
+        public static string GetDeviceTypeFromPlugInData(PlugExtraData plugInExtra)
+        {
+            if (plugInExtra != null && plugInExtra.NamedKeys.Contains(PlugInData.DevicePlugInDataTypeKey))
             {
-                if (plugInExtra.NamedKeys.Contains(PlugInData.DevicePlugInDataTypeKey))
-                {
-                    return plugInExtra[PlugInData.DevicePlugInDataTypeKey];
-                }
+                return plugInExtra[PlugInData.DevicePlugInDataTypeKey];
             }
 
             return null;
