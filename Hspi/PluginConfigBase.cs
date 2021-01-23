@@ -106,6 +106,7 @@ namespace Hspi
             }
         }
 
+        private const string LogToFileKey = "LogToFile";
         private const string DebugLoggingKey = "DebugLogging";
         private const string DefaultSection = "Settings";
         private const string LogToFileKey = "LogToFile";
