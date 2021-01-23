@@ -4,33 +4,57 @@ using NLog.Targets;
 using NullGuard;
 using System;
 using System.Globalization;
+using System.IO;
 
 namespace Hspi
 {
     [NullGuard(ValidationFlags.Arguments | ValidationFlags.NonPublic)]
     internal static class Logger
     {
-        public static void ConfigureLogging(bool enableLogging, [AllowNull] IHsController hsController = null)
+#pragma warning disable CA2000 // Dispose objects before losing scope
+
+        public static void ConfigureLogging(bool enableLogging,
+                                            bool logToFile,
+                                            [AllowNull] IHsController hsController = null)
         {
             var config = new NLog.Config.LoggingConfiguration();
             config.DefaultCultureInfo = CultureInfo.InvariantCulture;
-#pragma warning disable CA2000 // Dispose objects before losing scope
             var logconsole = new ConsoleTarget("logconsole");
-#pragma warning restore CA2000 // Dispose objects before losing scope
 
             LogLevel minLevel = enableLogging ? LogLevel.Debug : LogLevel.Info;
+            config.AddRule(enableLogging ? LogLevel.Debug : LogLevel.Info, LogLevel.Fatal, logconsole);
 
             if (hsController != null)
             {
-#pragma warning disable CA2000 // Dispose objects before losing scope
                 var hsTarget = new HomeSeerTarget(hsController);
-#pragma warning restore CA2000 // Dispose objects before losing scope
                 config.AddRule(minLevel, LogLevel.Fatal, hsTarget);
             }
-            config.AddRule(enableLogging ? LogLevel.Debug : LogLevel.Info, LogLevel.Fatal, logconsole);
 
+            if (logToFile)
+            {
+                string hsDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+                string logFile = Path.Combine(hsDir, "logs", PlugInData.PlugInId, "file.log");
+
+                var fileTarget = new FileTarget()
+                {
+                    FileNameKind = FilePathKind.Absolute,
+                    CreateDirs = true,
+                    MaxArchiveDays = 7,
+                    MaxArchiveFiles = 7,
+                    ArchiveEvery = FileArchivePeriod.Day,
+                    ArchiveAboveSize = 10 * 1024 * 1024,
+                    ConcurrentWrites = false,
+                    ArchiveNumbering = ArchiveNumberingMode.Rolling,
+                    FileName = logFile,
+                    KeepFileOpen = true,
+                };
+
+                config.AddRule(minLevel, LogLevel.Fatal, fileTarget);
+            }
             NLog.LogManager.Configuration = config;
         }
+
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
         [Target("homeseer")]
         public sealed class HomeSeerTarget : Target

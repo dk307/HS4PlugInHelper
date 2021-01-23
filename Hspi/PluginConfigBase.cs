@@ -10,6 +10,7 @@ namespace Hspi
         {
             this.HS = HS;
             debugLogging = GetValue(DebugLoggingKey, false);
+            logToFile = GetValue(LogToFileKey, false);
         }
 
         public bool DebugLogging
@@ -22,6 +23,19 @@ namespace Hspi
             set
             {
                 SetValue(DebugLoggingKey, value, ref debugLogging);
+            }
+        }
+
+        public bool LogToFile
+        {
+            get
+            {
+                return logToFile;
+            }
+
+            set
+            {
+                SetValue(LogToFileKey, value, ref logToFile);
             }
         }
 
@@ -40,6 +54,7 @@ namespace Hspi
         {
             HS.ClearIniSection(id, PlugInData.SettingFileName);
         }
+
         protected T GetValue<T>(string key, T defaultValue)
         {
             return GetValue(key, defaultValue, DefaultSection);
@@ -93,7 +108,9 @@ namespace Hspi
 
         private const string DebugLoggingKey = "DebugLogging";
         private const string DefaultSection = "Settings";
+        private const string LogToFileKey = "LogToFile";
         private readonly IHsController HS;
         private bool debugLogging;
+        private bool logToFile;
     };
 }
