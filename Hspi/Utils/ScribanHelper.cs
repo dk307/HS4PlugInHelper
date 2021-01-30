@@ -10,34 +10,10 @@ namespace Hspi.Utils
 {
     internal static class ScribanHelper
     {
-        public static IDictionary<string, object> ConvertToStringObjectDictionary(IDictionary<string, string> source)
-        {
-            var destination = new Dictionary<string, object>();
-            foreach (var pair in source)
-            {
-                destination.Add(pair.Key, pair.Value);
-            }
-            return destination;
-        }
-
         public static T FromDictionary<T>(IDictionary<string, string> source) where T : class
         {
             var json = JsonConvert.SerializeObject(source, Formatting.None);
             return Deserialize<T>(json);
-        }
-
-        public static T FromDictionary<T>(IDictionary<string, object> source) where T : class
-        {
-            var json = JsonConvert.SerializeObject(source, Formatting.None);
-            return Deserialize<T>(json);
-        }
-
-        private static T Deserialize<T>(string json) where T : class
-        {
-            JsonSerializer serializer = new JsonSerializer();
-            serializer.Converters.Add(new BoolConverter());
-            var obj = serializer.Deserialize<T>(new JsonTextReader(new StringReader(json)));
-            return obj;
         }
 
         public static IDictionary<string, object> ToDictionary<T>(T obj)
@@ -49,20 +25,25 @@ namespace Hspi.Utils
             return dict;
         }
 
-        private class LowercaseContractResolver : DefaultContractResolver
+        private static T Deserialize<T>(string json) where T : class
         {
-#pragma warning disable CA1308 // Normalize strings to uppercase
-
-            protected override string ResolvePropertyName(string propertyName) => propertyName.ToLowerInvariant();
-
-#pragma warning restore CA1308 // Normalize strings to uppercase
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Converters.Add(new BoolConverter());
+            using StringReader stringReader = new StringReader(json);
+            using JsonTextReader reader = new JsonTextReader(stringReader);
+            var obj = serializer.Deserialize<T>(reader);
+            if (obj == null)
+            {
+                throw new Exception("Conversion Failed");
+            }
+            return obj;
         }
 
         private class BoolConverter : JsonConverter
         {
-            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            public override bool CanConvert(Type objectType)
             {
-                writer.WriteValue(((bool)value) ? "on" : "off");
+                return objectType == typeof(bool);
             }
 
             public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
@@ -70,10 +51,26 @@ namespace Hspi.Utils
                 return reader?.Value?.ToString() == "on";
             }
 
-            public override bool CanConvert(Type objectType)
+            public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
             {
-                return objectType == typeof(bool);
+                if (value == null) { writer.WriteValue(Off); }
+                else
+                {
+                    writer.WriteValue(((bool)value) ? On : Off);
+                }
             }
+
+            private const string Off = "off";
+            private const string On = "on";
+        }
+
+        private class LowercaseContractResolver : DefaultContractResolver
+        {
+#pragma warning disable CA1308 // Normalize strings to uppercase
+
+            protected override string ResolvePropertyName(string propertyName) => propertyName.ToLowerInvariant();
+
+#pragma warning restore CA1308 // Normalize strings to uppercase
         }
     }
 }
