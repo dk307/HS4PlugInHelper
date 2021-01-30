@@ -17,7 +17,7 @@ namespace Hspi.Utils
         public static TValue GetValueOrDefault<TKey, TValue> (
                 this ImmutableDictionary<TKey, TValue> dictionary,
                 TKey key,
-                TValue defaultValue)
+                TValue defaultValue) where TKey: notnull
         {
             TValue value;
             return dictionary.TryGetValue(key, out value) ? value : defaultValue;
