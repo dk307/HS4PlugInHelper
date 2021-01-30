@@ -1,13 +1,13 @@
 ﻿using HomeSeer.Jui.Views;
 using HomeSeer.PluginSdk;
-using NullGuard;
 using System;
 using System.Globalization;
 using System.Threading;
 
+#nullable enable
+
 namespace Hspi
 {
-    [NullGuard(ValidationFlags.Arguments | ValidationFlags.NonPublic)]
     internal abstract class HspiBase : AbstractPlugin, IDisposable
     {
         protected HspiBase(string id, string name)
@@ -48,7 +48,7 @@ namespace Hspi
             cancellationTokenSource.Cancel();
         }
 
-        protected static int ParseRefId(string refIdString)
+        protected static int ParseRefId(string? refIdString)
         {
             return int.Parse(refIdString,
                              System.Globalization.NumberStyles.Any,

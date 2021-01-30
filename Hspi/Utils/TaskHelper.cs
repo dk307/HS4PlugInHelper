@@ -7,7 +7,7 @@ namespace Hspi.Utils
 {
     internal static class TaskHelper
     {
-        private static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
+        private readonly static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
 
         public static T ResultForSync<T>(this Task<T> @this)
         {

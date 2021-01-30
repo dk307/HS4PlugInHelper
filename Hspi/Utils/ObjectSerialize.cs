@@ -1,24 +1,24 @@
-﻿using NullGuard;
-using System;
+﻿using System;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
+#nullable enable
+
 namespace Hspi.Utils
 {
-    [NullGuard(ValidationFlags.Arguments | ValidationFlags.NonPublic)]
-    internal static class ObjectSerialize
+     internal static class ObjectSerialize
     {
         public static string SerializeToString(object obj)
         {
             return Convert.ToBase64String(SerializeToBytes(obj), Base64FormattingOptions.None);
         }
 
-        public static object DeSerializeToObject(string str)
+        public static object? DeSerializeToObject(string str)
         {
             return DeSerializeFromBytes(Convert.FromBase64String(str));
         }
 
-        public static byte[] SerializeToBytes(object obj)
+        public static byte[]? SerializeToBytes(object obj)
         {
             if (obj == null)
             {
@@ -35,7 +35,7 @@ namespace Hspi.Utils
             }
         }
 
-        public static object DeSerializeFromBytes([AllowNull]byte[] arrBytes)
+        public static object? DeSerializeFromBytes(byte[]? arrBytes)
         {
             if (arrBytes == null || arrBytes.Length == 0)
             {

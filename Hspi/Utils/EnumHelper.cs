@@ -1,5 +1,4 @@
-﻿using NullGuard;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -7,8 +6,6 @@ using System.Reflection;
 
 namespace Hspi.Utils
 {
-
-    [NullGuard(ValidationFlags.Arguments | ValidationFlags.NonPublic)]
     internal static class EnumHelper
     {
         /// <summary>

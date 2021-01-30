@@ -1,12 +1,12 @@
 ﻿using HomeSeer.PluginSdk;
 using HomeSeer.PluginSdk.Devices;
-using NullGuard;
-using System;
+ using System;
+
+#nullable enable
 
 namespace Hspi.DeviceData
 {
-    [NullGuard(ValidationFlags.Arguments | ValidationFlags.NonPublic)]
-    internal static class HSDeviceHelper
+     internal static class HSDeviceHelper
     {
         public static string GetName(IHsController HS, int refId)
         {
@@ -27,13 +27,13 @@ namespace Hspi.DeviceData
             return plugExtra;
         }
 
-        public static string GetDeviceTypeFromPlugInData(IHsController HS, int refId)
+        public static string? GetDeviceTypeFromPlugInData(IHsController HS, int refId)
         {
             var plugInExtra = HS.GetPropertyByRef(refId, EProperty.PlugExtraData) as PlugExtraData;
             return GetDeviceTypeFromPlugInData(plugInExtra);
         }
 
-        public static string GetDeviceTypeFromPlugInData(PlugExtraData plugInExtra)
+        public static string? GetDeviceTypeFromPlugInData(PlugExtraData? plugInExtra)
         {
             if (plugInExtra != null && plugInExtra.NamedKeys.Contains(PlugInData.DevicePlugInDataTypeKey))
             {

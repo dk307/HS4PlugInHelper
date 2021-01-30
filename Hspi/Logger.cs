@@ -1,21 +1,21 @@
 ﻿using HomeSeer.PluginSdk;
 using NLog;
 using NLog.Targets;
-using NullGuard;
 using System;
 using System.Globalization;
 using System.IO;
 
+#nullable enable
+
 namespace Hspi
 {
-    [NullGuard(ValidationFlags.Arguments | ValidationFlags.NonPublic)]
     internal static class Logger
     {
 #pragma warning disable CA2000 // Dispose objects before losing scope
 
         public static void ConfigureLogging(bool enableLogging,
                                             bool logToFile,
-                                            [AllowNull] IHsController hsController = null)
+                                            IHsController? hsController = null)
         {
             var config = new NLog.Config.LoggingConfiguration();
             config.DefaultCultureInfo = CultureInfo.InvariantCulture;
@@ -59,7 +59,7 @@ namespace Hspi
         [Target("homeseer")]
         public sealed class HomeSeerTarget : Target
         {
-            public HomeSeerTarget(IHsController hsController = null)
+            public HomeSeerTarget(IHsController hsController)
             {
                 this.loggerWeakReference = new WeakReference<IHsController>(hsController);
             }

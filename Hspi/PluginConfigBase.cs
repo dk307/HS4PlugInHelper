@@ -2,6 +2,8 @@
 using System;
 using System.Globalization;
 
+#nullable enable
+
 namespace Hspi
 {
     internal class PluginConfigBase
@@ -39,12 +41,12 @@ namespace Hspi
             }
         }
 
-        protected static string DecryptString(string password)
+        protected static string? DecryptString(string? password)
         {
             return password;
         }
 
-        protected static string EncryptString(string password)
+        protected static string? EncryptString(string? password)
         {
             // Chose not to do anything as encryption key anyway has to stored in the code/machine
             return password;
@@ -98,7 +100,7 @@ namespace Hspi
 
         protected void SetValue<T>(string key, T value, ref T oldValue, string section)
         {
-            if (!value.Equals(oldValue))
+            if (object.Equals( value, oldValue))
             {
                 string stringValue = System.Convert.ToString(value, CultureInfo.InvariantCulture);
                 HS.SaveINISetting(section, key, stringValue, fileName: PlugInData.SettingFileName);
