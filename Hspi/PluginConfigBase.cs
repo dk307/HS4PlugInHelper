@@ -2,6 +2,8 @@
 using System;
 using System.Globalization;
 
+#nullable enable
+
 namespace Hspi
 {
     internal class PluginConfigBase

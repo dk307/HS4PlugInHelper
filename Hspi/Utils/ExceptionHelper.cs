@@ -2,6 +2,8 @@
 using System.Text;
 using System.Threading.Tasks;
 
+#nullable enable
+
 namespace Hspi.Utils
 {
     internal static class ExceptionHelper

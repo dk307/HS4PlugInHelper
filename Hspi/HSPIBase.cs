@@ -4,6 +4,8 @@ using System;
 using System.Globalization;
 using System.Threading;
 
+#nullable enable
+
 namespace Hspi
 {
     internal abstract class HspiBase : AbstractPlugin, IDisposable

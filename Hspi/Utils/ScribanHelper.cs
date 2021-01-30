@@ -1,7 +1,10 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Reflection;
+using System.IO;
+
+#nullable enable
 
 namespace Hspi.Utils
 {
@@ -19,36 +22,58 @@ namespace Hspi.Utils
 
         public static T FromDictionary<T>(IDictionary<string, string> source) where T : class
         {
-            var json = JsonConvert.SerializeObject(source);
-            var obj = JsonConvert.DeserializeObject<T>(json);
-            return obj;
+            var json = JsonConvert.SerializeObject(source, Formatting.None);
+            return Deserialize<T>(json);
         }
 
         public static T FromDictionary<T>(IDictionary<string, object> source) where T : class
         {
-            var json = JsonConvert.SerializeObject(source);
-            var obj = JsonConvert.DeserializeObject<T>(json);
+            var json = JsonConvert.SerializeObject(source, Formatting.None);
+            return Deserialize<T>(json);
+        }
+
+        private static T Deserialize<T>(string json) where T : class
+        {
+            JsonSerializer serializer = new JsonSerializer();
+            serializer.Converters.Add(new BoolConverter());
+            var obj = serializer.Deserialize<T>(new JsonTextReader(new StringReader(json)));
             return obj;
         }
 
         public static IDictionary<string, object> ToDictionary<T>(T obj)
         {
-            var dict = new Dictionary<string, object>();
-
-            foreach (var propertyInfo in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                var currentValue = propertyInfo.GetValue(obj);
-                dict.Add(NormalizeName(propertyInfo.Name), currentValue);
-            }
-
+            var settings = new JsonSerializerSettings();
+            settings.ContractResolver = new LowercaseContractResolver();
+            var json = JsonConvert.SerializeObject(obj, Formatting.Indented, settings);
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
             return dict;
         }
 
-        private static string NormalizeName(string name)
+        private class LowercaseContractResolver : DefaultContractResolver
         {
 #pragma warning disable CA1308 // Normalize strings to uppercase
-            return name.ToLower(CultureInfo.InvariantCulture);
+
+            protected override string ResolvePropertyName(string propertyName) => propertyName.ToLowerInvariant();
+
 #pragma warning restore CA1308 // Normalize strings to uppercase
+        }
+
+        private class BoolConverter : JsonConverter
+        {
+            public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+            {
+                writer.WriteValue(((bool)value) ? "on" : "off");
+            }
+
+            public override object ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+            {
+                return reader?.Value?.ToString() == "on";
+            }
+
+            public override bool CanConvert(Type objectType)
+            {
+                return objectType == typeof(bool);
+            }
         }
     }
 }

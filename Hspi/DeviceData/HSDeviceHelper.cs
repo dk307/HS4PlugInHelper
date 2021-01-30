@@ -2,6 +2,8 @@
 using HomeSeer.PluginSdk.Devices;
 using System;
 
+#nullable enable
+
 namespace Hspi.DeviceData
 {
     internal static class HSDeviceHelper

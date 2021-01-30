@@ -5,6 +5,8 @@ using System;
 using System.Globalization;
 using System.IO;
 
+#nullable enable
+
 namespace Hspi
 {
     internal static class Logger

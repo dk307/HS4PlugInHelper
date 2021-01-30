@@ -3,6 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using static System.FormattableString;
 
+#nullable enable
+
 namespace Hspi.Utils
 {
     internal static class TaskHelper

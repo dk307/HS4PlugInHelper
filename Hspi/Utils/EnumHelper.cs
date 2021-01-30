@@ -4,6 +4,8 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
+#nullable enable
+
 namespace Hspi.Utils
 {
     internal static class EnumHelper

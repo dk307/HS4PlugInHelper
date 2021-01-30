@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
 
+#nullable enable
+
 namespace Hspi.Utils
 {
     internal static class MiscHelper
