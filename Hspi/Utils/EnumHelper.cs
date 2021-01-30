@@ -24,7 +24,7 @@ namespace Hspi.Utils
                 return value.ToString();
         }
 
-        public static T GetAttribute<T>(Enum value) where T : Attribute
+        public static T? GetAttribute<T>(Enum value) where T : Attribute
         {
             FieldInfo fi = value.GetType().GetField(value.ToString());
             var attributes = (T[])fi.GetCustomAttributes(typeof(T), false);
