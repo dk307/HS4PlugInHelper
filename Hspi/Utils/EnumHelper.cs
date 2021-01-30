@@ -24,6 +24,16 @@ namespace Hspi.Utils
                 return value.ToString();
         }
 
+        public static T GetAttribute<T>(Enum value) where T : Attribute
+        {
+            FieldInfo fi = value.GetType().GetField(value.ToString());
+            var attributes = (T[])fi.GetCustomAttributes(typeof(T), false);
+            if (attributes.Length > 0)
+                return attributes[0];
+            else
+                return null;
+        }
+
         public static IEnumerable<T> GetValues<T>() where T : Enum
         {
             return Enum.GetValues(typeof(T)).Cast<T>();
