@@ -1,12 +1,10 @@
 ﻿using HomeSeer.PluginSdk;
 using HomeSeer.PluginSdk.Devices;
- using System;
-
-#nullable enable
+using System;
 
 namespace Hspi.DeviceData
 {
-     internal static class HSDeviceHelper
+    internal static class HSDeviceHelper
     {
         public static string GetName(IHsController HS, int refId)
         {

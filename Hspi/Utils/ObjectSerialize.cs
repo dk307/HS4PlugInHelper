@@ -2,11 +2,9 @@
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 
-#nullable enable
-
 namespace Hspi.Utils
 {
-     internal static class ObjectSerialize
+    internal static class ObjectSerialize
     {
         public static string SerializeToString(object obj)
         {
