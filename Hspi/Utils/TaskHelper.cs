@@ -24,14 +24,15 @@ namespace Hspi.Utils
 
         public static void StartAsyncWithErrorChecking(string taskName,
                                                        Func<Task> taskAction,
-                                                       CancellationToken token)
+                                                       CancellationToken token,
+                                                       TimeSpan? delayAfterError = null)
         {
-            _ = Task.Factory.StartNew(() => RunInLoop(taskName, taskAction, token), token,
+            _ = Task.Factory.StartNew(() => RunInLoop(taskName, taskAction, delayAfterError, token), token,
                                           TaskCreationOptions.LongRunning | TaskCreationOptions.DenyChildAttach,
                                           TaskScheduler.Current);
         }
 
-        private static async Task RunInLoop(string taskName, Func<Task> taskAction, CancellationToken token)
+        private static async Task RunInLoop(string taskName, Func<Task> taskAction, TimeSpan? delayAfterError, CancellationToken token)
         {
             bool loop = true;
             while (loop && !token.IsCancellationRequested)
@@ -50,7 +51,15 @@ namespace Hspi.Utils
                         throw;
                     }
 
-                    logger.Error(Invariant($"{taskName} failed with {ex.GetFullMessage()}. Restarting ..."));
+                    if (delayAfterError.HasValue)
+                    {
+                        logger.Error(Invariant($"{taskName} failed with {ex.GetFullMessage()}. Restarting after {delayAfterError.Value.TotalSeconds}s ..."));
+                        await Task.Delay(delayAfterError.Value, token).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        logger.Error(Invariant($"{taskName} failed with {ex.GetFullMessage()}. Restarting ..."));
+                    }
                 }
             }
         }
