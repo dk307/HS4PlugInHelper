@@ -100,7 +100,7 @@ namespace Hspi
 
         protected void SetValue<T>(string key, T value, ref T oldValue, string section)
         {
-            if (object.Equals(value, oldValue))
+            if (!object.Equals(value, oldValue))
             {
                 string stringValue = System.Convert.ToString(value, CultureInfo.InvariantCulture);
                 HS.SaveINISetting(section, key, stringValue, fileName: PlugInData.SettingFileName);
