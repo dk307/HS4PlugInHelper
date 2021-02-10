@@ -25,6 +25,15 @@ namespace Hspi.Utils
             return dict;
         }
 
+        public static IDictionary<string, string> ToDictionaryS<T>(T obj)
+        {
+            var settings = new JsonSerializerSettings();
+            settings.ContractResolver = new LowercaseContractResolver();
+            var json = JsonConvert.SerializeObject(obj, Formatting.Indented, settings);
+            var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
+            return dict;
+        }
+
         private static T Deserialize<T>(string json) where T : class
         {
             JsonSerializer serializer = new JsonSerializer();
