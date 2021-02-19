@@ -11,14 +11,15 @@ namespace Hspi
 {
     internal static class Logger
     {
-#pragma warning disable CA2000 // Dispose objects before losing scope
-
+ 
         public static void ConfigureLogging(bool enableLogging,
                                             bool logToFile,
                                             IHsController? hsController = null)
         {
-            var config = new NLog.Config.LoggingConfiguration();
-            config.DefaultCultureInfo = CultureInfo.InvariantCulture;
+            var config = new NLog.Config.LoggingConfiguration
+            {
+                DefaultCultureInfo = CultureInfo.InvariantCulture
+            };
             var logconsole = new ConsoleTarget("logconsole");
 
             LogLevel minLevel = enableLogging ? LogLevel.Debug : LogLevel.Info;
@@ -54,8 +55,7 @@ namespace Hspi
             NLog.LogManager.Configuration = config;
         }
 
-#pragma warning restore CA2000 // Dispose objects before losing scope
-
+ 
         [Target("homeseer")]
         public sealed class HomeSeerTarget : Target
         {

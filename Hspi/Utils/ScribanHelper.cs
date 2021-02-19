@@ -18,8 +18,10 @@ namespace Hspi.Utils
 
         public static IDictionary<string, object> ToDictionary<T>(T obj)
         {
-            var settings = new JsonSerializerSettings();
-            settings.ContractResolver = new LowercaseContractResolver();
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new LowercaseContractResolver()
+            };
             var json = JsonConvert.SerializeObject(obj, Formatting.Indented, settings);
             var dict = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
             return dict;
@@ -27,8 +29,10 @@ namespace Hspi.Utils
 
         public static IDictionary<string, string> ToDictionaryS<T>(T obj)
         {
-            var settings = new JsonSerializerSettings();
-            settings.ContractResolver = new LowercaseContractResolver();
+            var settings = new JsonSerializerSettings
+            {
+                ContractResolver = new LowercaseContractResolver()
+            };
             var json = JsonConvert.SerializeObject(obj, Formatting.Indented, settings);
             var dict = JsonConvert.DeserializeObject<Dictionary<string, string>>(json);
             return dict;
@@ -75,11 +79,12 @@ namespace Hspi.Utils
 
         private class LowercaseContractResolver : DefaultContractResolver
         {
+            protected override string ResolvePropertyName(string propertyName)
+            {
 #pragma warning disable CA1308 // Normalize strings to uppercase
-
-            protected override string ResolvePropertyName(string propertyName) => propertyName.ToLowerInvariant();
-
+                return propertyName.ToLowerInvariant();
 #pragma warning restore CA1308 // Normalize strings to uppercase
+            }
         }
     }
 }
