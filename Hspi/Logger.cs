@@ -11,7 +11,6 @@ namespace Hspi
 {
     internal static class Logger
     {
- 
         public static void ConfigureLogging(bool enableLogging,
                                             bool logToFile,
                                             IHsController? hsController = null)
@@ -55,7 +54,6 @@ namespace Hspi
             NLog.LogManager.Configuration = config;
         }
 
- 
         [Target("homeseer")]
         public sealed class HomeSeerTarget : Target
         {

@@ -55,7 +55,7 @@ namespace Hspi
                              CultureInfo.InvariantCulture);
         }
 
-        private readonly CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        private readonly CancellationTokenSource cancellationTokenSource = new();
         private readonly string id;
         private readonly string name;
         private bool disposedValue;

@@ -8,23 +8,30 @@ namespace Hspi.Utils
 {
     internal static class ExceptionHelper
     {
-        public static string GetFullMessage(this Exception ex)
+        public static string GetFullMessage(this Exception ex, bool debugMode = false)
         {
+            var stb = new StringBuilder();
             switch (ex)
             {
                 case AggregateException aggregationException:
-                    var stb = new StringBuilder();
-
                     foreach (var innerException in aggregationException.InnerExceptions)
                     {
-                        stb.AppendLine(GetFullMessage(innerException));
+                        stb.AppendLine(GetFullMessage(innerException, debugMode));
                     }
-
-                    return stb.ToString();
+                    break;
 
                 default:
-                    return ex.Message;
+                    {
+                        stb.AppendLine(debugMode ? ex.ToString() : ex.Message);
+                        if (ex.InnerException != null)
+                        {
+                            stb.AppendLine(GetFullMessage(ex.InnerException, debugMode));
+                        }
+                    }
+                    break;
             }
+
+            return stb.ToString();
         }
 
         public static bool IsCancelException(this Exception ex)
