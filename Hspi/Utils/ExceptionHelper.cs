@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Text;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 #nullable enable
@@ -8,30 +8,52 @@ namespace Hspi.Utils
 {
     internal static class ExceptionHelper
     {
-        public static string GetFullMessage(this Exception ex, bool debugMode = false)
+        public static string GetFullMessage(this Exception ex)
         {
-            var stb = new StringBuilder();
+            return GetFullMessage(ex, Environment.NewLine);
+        }
+
+        public static string GetFullMessage(this Exception ex, string eol)
+        {
+            var list = GetMessageList(ex);
+
+            List<string> results = new();
+            foreach (var element in list)
+            {
+                if (results.Count == 0 || results[results.Count - 1] != element)
+                {
+                    results.Add(element);
+                }
+            }
+
+            return string.Join(eol, results);
+        }
+
+        private static List<string> GetMessageList(Exception ex)
+        {
+            var list = new List<string>();
             switch (ex)
             {
                 case AggregateException aggregationException:
                     foreach (var innerException in aggregationException.InnerExceptions)
                     {
-                        stb.AppendLine(GetFullMessage(innerException, debugMode));
+                        list.AddRange(GetMessageList(innerException));
                     }
                     break;
 
                 default:
                     {
-                        stb.AppendLine(debugMode ? ex.ToString() : ex.Message);
+                        string message = ex.Message.Trim(new char[] { ' ', '\r', '\n' });
+                        list.Add(message);
                         if (ex.InnerException != null)
                         {
-                            stb.AppendLine(GetFullMessage(ex.InnerException, debugMode));
+                            list.AddRange(GetMessageList(ex.InnerException));
                         }
                     }
                     break;
             }
 
-            return stb.ToString();
+            return list;
         }
 
         public static bool IsCancelException(this Exception ex)
