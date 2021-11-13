@@ -29,6 +29,13 @@ namespace Hspi.Utils
             return string.Join(eol, results);
         }
 
+        public static bool IsCancelException(this Exception ex)
+        {
+            return (ex is TaskCanceledException) ||
+                   (ex is OperationCanceledException) ||
+                   (ex is ObjectDisposedException);
+        }
+
         private static List<string> GetMessageList(Exception ex)
         {
             var list = new List<string>();
@@ -54,13 +61,6 @@ namespace Hspi.Utils
             }
 
             return list;
-        }
-
-        public static bool IsCancelException(this Exception ex)
-        {
-            return (ex is TaskCanceledException) ||
-                   (ex is OperationCanceledException) ||
-                   (ex is ObjectDisposedException);
         }
     };
 }

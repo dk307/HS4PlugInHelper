@@ -11,7 +11,7 @@ namespace Hspi
 {
     internal static class Logger
     {
-        public static void ConfigureLogging(bool enableLogging,
+        public static void ConfigureLogging(bool enableDebugLogging,
                                             bool logToFile,
                                             IHsController? hsController = null)
         {
@@ -21,8 +21,8 @@ namespace Hspi
             };
             var logconsole = new ConsoleTarget("logconsole");
 
-            LogLevel minLevel = enableLogging ? LogLevel.Debug : LogLevel.Info;
-            config.AddRule(enableLogging ? LogLevel.Debug : LogLevel.Info, LogLevel.Fatal, logconsole);
+            LogLevel minLevel = enableDebugLogging ? LogLevel.Debug : LogLevel.Info;
+            config.AddRule(enableDebugLogging ? LogLevel.Debug : LogLevel.Info, LogLevel.Fatal, logconsole);
 
             if (hsController != null)
             {
@@ -32,7 +32,9 @@ namespace Hspi
 
             if (logToFile)
             {
-                string hsDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+                using var process = System.Diagnostics.Process.GetCurrentProcess();
+                string mainExeFile = process.MainModule.FileName;
+                string hsDir = Path.GetDirectoryName(mainExeFile);
                 string logFile = Path.Combine(hsDir, "logs", PlugInData.PlugInId, "file.log");
 
                 var fileTarget = new FileTarget()
