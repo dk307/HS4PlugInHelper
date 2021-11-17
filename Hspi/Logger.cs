@@ -9,6 +9,7 @@ using System.IO;
 
 namespace Hspi
 {
+    // uses NLog as underlying framework
     internal static class Logger
     {
         public static void ConfigureLogging(bool enableDebugLogging,
