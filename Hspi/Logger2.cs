@@ -1,4 +1,5 @@
-﻿using HomeSeer.PluginSdk;
+﻿using Destructurama;
+using HomeSeer.PluginSdk;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -36,6 +37,8 @@ namespace Hspi
 
                 config = config.WriteTo.File(logFile, fileSizeLimitBytes: 10 * 1024 * 1024);
             }
+            config = config.Destructure.UsingAttributes();
+
             Log.Logger = config.CreateLogger();
         }
 
