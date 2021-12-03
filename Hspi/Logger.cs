@@ -33,9 +33,8 @@ namespace Hspi
 
             if (logToFile)
             {
-                using var process = System.Diagnostics.Process.GetCurrentProcess();
-                string mainExeFile = process.MainModule.FileName;
-                string hsDir = Path.GetDirectoryName(mainExeFile);
+                string codeBase = new Uri(typeof(Logger).Assembly.CodeBase).LocalPath;
+                string hsDir = Path.GetDirectoryName(codeBase);
                 string logFile = Path.Combine(hsDir, "logs", PlugInData.PlugInId, "file.log");
 
                 var fileTarget = new FileTarget()
