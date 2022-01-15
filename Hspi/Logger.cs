@@ -35,7 +35,7 @@ namespace Hspi
             {
                 string codeBase = new Uri(typeof(Logger).Assembly.CodeBase).LocalPath;
                 string hsDir = Path.GetDirectoryName(codeBase);
-                string logFile = Path.Combine(hsDir, "logs", PlugInData.PlugInId, "file.log");
+                string logFile = Path.Combine(hsDir, "Logs", PlugInData.PlugInId, "file.log");
 
                 var fileTarget = new FileTarget()
                 {
