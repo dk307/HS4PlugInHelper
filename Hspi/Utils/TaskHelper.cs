@@ -1,7 +1,7 @@
-﻿using System;
+﻿using Serilog;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.FormattableString;
 
 #nullable enable
 
@@ -9,8 +9,6 @@ namespace Hspi.Utils
 {
     internal static class TaskHelper
     {
-        private readonly static NLog.Logger logger = NLog.LogManager.GetCurrentClassLogger();
-
         public static T ResultForSync<T>(this Task<T> @this)
         {
             // https://blogs.msdn.microsoft.com/pfxteam/2012/04/13/should-i-expose-synchronous-wrappers-for-asynchronous-methods/
@@ -32,16 +30,19 @@ namespace Hspi.Utils
                                           TaskScheduler.Current);
         }
 
-        private static async Task RunInLoop(string taskName, Func<Task> taskAction, TimeSpan? delayAfterError, CancellationToken token)
+        private static async Task RunInLoop(string taskName,
+                                            Func<Task> taskAction,
+                                            TimeSpan? delayAfterError,
+                                            CancellationToken token)
         {
             bool loop = true;
             while (loop && !token.IsCancellationRequested)
             {
                 try
                 {
-                    logger.Debug(Invariant($"{taskName} Starting"));
+                    Log.Debug("{taskName} starting", taskName);
                     await taskAction().ConfigureAwait(false);
-                    logger.Debug(Invariant($"{taskName} Finished"));
+                    Log.Debug("{taskName} finished", taskName);
                     loop = false;  //finished sucessfully
                 }
                 catch (Exception ex)
@@ -53,12 +54,14 @@ namespace Hspi.Utils
 
                     if (delayAfterError.HasValue)
                     {
-                        logger.Error(Invariant($"{taskName} failed with {ex.GetFullMessage()}. Restarting after {delayAfterError.Value.TotalSeconds}s ..."));
+                        Log.Error("{taskName} failed with {error}. Restarting after {time}s ...",
+                                    taskName, ex.GetFullMessage(), delayAfterError.Value.TotalSeconds);
                         await Task.Delay(delayAfterError.Value, token).ConfigureAwait(false);
                     }
                     else
                     {
-                        logger.Error(Invariant($"{taskName} failed with {ex.GetFullMessage()}. Restarting ..."));
+                        Log.Error("{taskName} failed with {error}. Restarting ...",
+                                    taskName, ex.GetFullMessage());
                     }
                 }
             }
