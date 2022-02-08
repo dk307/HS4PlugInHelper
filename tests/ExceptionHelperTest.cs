@@ -1,155 +1,62 @@
-﻿using Hspi.Exceptions;
-using Hspi.OpenZWaveDB;
+﻿using Hspi.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
-namespace HSPI_ZWaveParametersTest
+namespace HSPI_Test
 {
     [TestClass]
-    public class OpenZWaveDBJsonParseTest
+    public class ExceptionHelperTest
     {
         [TestMethod]
-        public void EmptyThrowsException()
+        public void SimpleExceptionMessage()
         {
-            Assert.ThrowsException<ShowErrorMessageException>(() => OpenZWaveDBInformation.ParseJson(string.Empty));
+            Assert.AreEqual("message", ExceptionHelper.GetFullMessage(new Exception("message")));
+            Assert.AreEqual("message", ExceptionHelper.GetFullMessage(new ArgumentException("message")));
         }
 
         [TestMethod]
-        public void EmptyObjectThrowsException()
+        public void InnerExceptionMessage()
         {
-            Assert.ThrowsException<ShowErrorMessageException>(() => OpenZWaveDBInformation.ParseJson("{}"));
+            var ex = new Exception("message", new Exception("inner exception"));
+            Assert.AreEqual(ExceptionHelper.GetFullMessage(ex), "message" + Environment.NewLine + "inner exception");
+
+            var ex2 = new Exception("message2", ex);
+            Assert.AreEqual(ExceptionHelper.GetFullMessage(ex2), "message2" + Environment.NewLine + "message" + Environment.NewLine + "inner exception");
         }
 
         [TestMethod]
-        public void BareMinimumJsonWorks()
+        public void InnerExceptionMessagesAreCollapsed()
         {
-            var obj = OpenZWaveDBInformation.ParseJson("{\"database_id\": 113 }");
+            var ex = new Exception("message", new Exception("inner exception"));
 
-            Assert.AreEqual(obj.Id, "113");
-
-            Assert.IsNull(obj.Description);
-            Assert.IsNull(obj.Label);
-            Assert.IsNull(obj.Overview);
-            Assert.IsNull(obj.Manufacturer);
-            Assert.IsNull(obj.EndPoints);
-            Assert.IsNull(obj.Parameters);
+            var ex2 = new Exception("message", ex);
+            Assert.AreEqual(ExceptionHelper.GetFullMessage(ex2), "message" + Environment.NewLine + "inner exception");
         }
 
         [TestMethod]
-        public void BasicJsonWorks()
+        public void MessageWithEOL()
         {
-            var obj = OpenZWaveDBInformation.ParseJson(Resource.BasicTopLevelOpenZwaveDBJson);
-
-            Assert.AreEqual(obj.Id, "1113");
-            Assert.AreEqual(obj.Description, "description");
-            Assert.AreEqual(obj.Label, "LZW30-SN");
-            Assert.AreEqual(obj.Overview, "overview");
-            Assert.AreEqual(obj.Manufacturer.Label, "Inovelli");
-
-            Assert.IsNull(obj.EndPoints);
-            Assert.IsNull(obj.Parameters);
+            var ex = new Exception("message", new Exception("inner exception"));
+            Assert.AreEqual("message<BR>inner exception", ExceptionHelper.GetFullMessage(ex, "<BR>"));
         }
 
         [TestMethod]
-        public void ParameterwithOption()
+        public void AggregateExceptionException()
         {
-            var obj = OpenZWaveDBInformation.ParseJson(Resource.ParameterWithOptionOpenZWaveDBJson);
-
-            Assert.IsNotNull(obj.Parameters);
-            Assert.AreEqual(obj.Parameters.Count, 1);
-
-            Assert.AreEqual(obj.Parameters[0].Id, 7228);
-            Assert.AreEqual(obj.Parameters[0].ParameterId, 1);
-            Assert.AreEqual(obj.Parameters[0].Label, @"Power On State");
-            Assert.AreEqual(obj.Parameters[0].Description, @"Power On State");
-            Assert.AreEqual(obj.Parameters[0].Overview, @"<p>When power is restored, the switch reverts to either On, Off or last level</p> <p>0 = Returns to State before Power Outage</p> <p>1 = On</p> <p>2 = Off</p>");
-            Assert.AreEqual(obj.Parameters[0].Size, 1);
-            Assert.AreEqual(obj.Parameters[0].WriteOnly, false);
-            Assert.AreEqual(obj.Parameters[0].ReadOnly, false);
-            Assert.AreEqual(obj.Parameters[0].Bitmask, 0);
-            Assert.AreEqual(obj.Parameters[0].Minimum, 0);
-            Assert.AreEqual(obj.Parameters[0].Maximum, 2);
-            Assert.AreEqual(obj.Parameters[0].LimitOptions, false);
-
-            //Options
-            Assert.AreEqual(obj.Parameters[0].HasOptions, true);
-            Assert.AreEqual(obj.Parameters[0].Options.Count, 3);
-            Assert.AreEqual(obj.Parameters[0].Options[0].Value, 0);
-            Assert.AreEqual(obj.Parameters[0].Options[1].Value, 1);
-            Assert.AreEqual(obj.Parameters[0].Options[2].Value, 2);
-
-            Assert.AreEqual(obj.Parameters[0].Options[0].Label, "Prior State");
-            Assert.AreEqual(obj.Parameters[0].Options[1].Label, "On");
-            Assert.AreEqual(obj.Parameters[0].Options[2].Label, "Off");
-
-            Assert.IsNull(obj.Parameters[0].SubParameters);
+            var exceptions = new List<Exception>() { new Exception("message1"), new Exception("message2") };
+            var ex = new AggregateException("message8", exceptions);
+            Assert.AreEqual("message1<BR>message2", ExceptionHelper.GetFullMessage(ex, "<BR>"));
         }
 
         [TestMethod]
-        public void ParameterwithNoOption()
+        public void IsCancelException()
         {
-            var obj = OpenZWaveDBInformation.ParseJson(Resource.ParameterWithNoOptionOpenZWaveDBJson);
-
-            Assert.IsNotNull(obj.Parameters);
-            Assert.AreEqual(obj.Parameters.Count, 1);
-
-            Assert.AreEqual(obj.Parameters[0].Id, 7247);
-            Assert.AreEqual(obj.Parameters[0].ParameterId, 3);
-            Assert.AreEqual(obj.Parameters[0].Label, @"Auto Off Timer");
-            Assert.AreEqual(obj.Parameters[0].Description, @"Auto Off Timer");
-            Assert.AreEqual(obj.Parameters[0].Overview, @"<p>Automatically turns the switch off after x amount of seconds</p> <p>0 = Disabled</p> <p>1= 1 second</p> <p>32767 = 32767 seconds</p>");
-            Assert.AreEqual(obj.Parameters[0].Size, 2);
-            Assert.AreEqual(obj.Parameters[0].WriteOnly, false);
-            Assert.AreEqual(obj.Parameters[0].ReadOnly, false);
-            Assert.AreEqual(obj.Parameters[0].Bitmask, 0);
-            Assert.AreEqual(obj.Parameters[0].Minimum, 0);
-            Assert.AreEqual(obj.Parameters[0].Maximum, 32767);
-            Assert.AreEqual(obj.Parameters[0].LimitOptions, true);
-
-            //Options
-            Assert.AreEqual(obj.Parameters[0].HasOptions, false);
-            Assert.AreEqual(obj.Parameters[0].Options.Count, 0);
-            Assert.IsNull(obj.Parameters[0].SubParameters);
-        }
-
-        [TestMethod]
-        public void ParameterWriteOnly()
-        {
-            var obj = OpenZWaveDBInformation.ParseJson(Resource.ParameterWriteOnlyOpenZWaveDBJson);
-
-            Assert.IsNotNull(obj.Parameters);
-            Assert.AreEqual(obj.Parameters.Count, 1);
-
-            Assert.AreEqual(obj.Parameters[0].WriteOnly, true);
-        }
-
-        [TestMethod]
-        public void ParameterReadOnly()
-        {
-            var obj = OpenZWaveDBInformation.ParseJson(Resource.ParameterReadOnlyOpenZWaveDBJson);
-
-            Assert.IsNotNull(obj.Parameters);
-            Assert.AreEqual(obj.Parameters.Count, 1);
-
-            Assert.AreEqual(obj.Parameters[0].ReadOnly, true);
-        }
-
-        [TestMethod]
-        public void EndPointsAreParsed()
-        {
-            var obj = OpenZWaveDBInformation.ParseJson(Resource.HomeseerDimmerOpenZWaveDBFullJson);
-
-            Assert.IsNotNull(obj.EndPoints);
-            Assert.AreEqual(obj.EndPoints.Count, 1);
-
-            Assert.AreEqual(obj.EndPoints[0].CommandClass.Count, 16);
-
-            // check set command class
-            Assert.AreEqual(obj.EndPoints[0].CommandClass[10].IsSetCommand, true);
-            Assert.AreEqual(obj.EndPoints[0].CommandClass[10].Channels.Count, 13);
-
-            Assert.AreEqual(obj.EndPoints[0].CommandClass[10].Channels[12].ParameterId, 31);
-            Assert.AreEqual(obj.EndPoints[0].CommandClass[10].Channels[12].Label, "Status mode LEDs Blink status (Bitmask)");
+            Assert.IsTrue(ExceptionHelper.IsCancelException(new TaskCanceledException()));
+            Assert.IsTrue(ExceptionHelper.IsCancelException(new OperationCanceledException()));
+            Assert.IsTrue(ExceptionHelper.IsCancelException(new ObjectDisposedException("name")));
+            Assert.IsFalse(ExceptionHelper.IsCancelException(new Exception()));
         }
     }
 }
