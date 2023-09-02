@@ -14,13 +14,13 @@ namespace Hspi
     // uses Serlog as underlying framework
     internal static class Logger
     {
-        public static void ConfigureLogging(bool enableDebugLogging,
+        public static void ConfigureLogging(LogEventLevel logEventLevel,
                                             bool logToFile,
                                             IHsController? hsController = null)
         {
             var config = new LoggerConfiguration().WriteTo.Console();
 
-            config = enableDebugLogging ? config.MinimumLevel.Debug() : config.MinimumLevel.Information();
+            config = config.MinimumLevel.Is(logEventLevel);
 
             if (hsController != null)
             {
